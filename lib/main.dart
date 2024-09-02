@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Task Manager',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        useMaterial3: true, // Enable Material3 for better animations and components
       ),
       home: const MyHomePage(title: 'Flutter Task Manager Home Page'),
     );
@@ -28,26 +29,53 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-       
       appBar: AppBar(
         toolbarHeight: 200,
         backgroundColor: Colors.amber,
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
+        leading: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: Colors.amber, // Background color
+            elevation: 5, // Elevation
+            shape: const CircleBorder(),
+          ),
+          child: const Icon(Icons.menu),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer(); // Open the drawer
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Colors.amber, // Background color
+              elevation: 5, // Elevation
+              shape: const CircleBorder(),
+            ),
+            child: const Icon(Icons.search),
             onPressed: () {
               // Add your search logic here
             },
@@ -57,28 +85,32 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             // Colorful Ring Around the Profile Avatar
-            Container(
-              padding: const EdgeInsets.all(4.0), 
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const SweepGradient(
-                  colors: [
-                    Colors.red,
-                    Colors.orange,
-                    Colors.yellow,
-                    Colors.green,
-                    Colors.blue,
-                    Colors.indigo,
-                    // Colors.violet,
-                    Colors.red, 
-                  ],
-                ),
-              ),
-              child: CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), 
-              ),
+            AnimatedBuilder(
+              animation: _fadeAnimation,
+              builder: (context, child) {
+                return Container(
+                  padding: const EdgeInsets.all(4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const SweepGradient(
+                      colors: [
+                        Colors.red,
+                        Colors.orange,
+                        Colors.yellow,
+                        Colors.green,
+                        Colors.blue,
+                        Colors.indigo,
+                        Colors.red,
+                      ],
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundImage: NetworkImage(
+                        'https://via.placeholder.com/150'),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 10),
             const Text(
@@ -120,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundImage: NetworkImage(
-                        'https://via.placeholder.com/150'), // Replace with your image
+                        'https://via.placeholder.com/150'),
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -181,18 +213,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.lime),
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.lime,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.lime, // Background color
+                      elevation: 5, // Elevation
+                      shape: const CircleBorder(),
                     ),
                     child: const Icon(
                       Icons.calendar_today,
                       color: Colors.white,
                       size: 25,
                     ),
+                    onPressed: () {
+                      // Add your calendar logic here
+                    },
                   ),
                 ],
               ),
